@@ -4,6 +4,7 @@ import lombok.*;
 import com.rednorte.ms_citas.dto.EstadoCita;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @Entity
 @Table(name = "citas")
@@ -12,16 +13,19 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 
-public class Citas {
+public class Cita {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
     @Column(nullable = false)
+    private Long pacienteId;
+
+    @Column(nullable = false)
     private LocalDate fecha;
 
     @Column(nullable = false)
-    private LocalDate hora;
+    private LocalTime hora;
 
     @Column(nullable = false)
     private String nombreMedico;
