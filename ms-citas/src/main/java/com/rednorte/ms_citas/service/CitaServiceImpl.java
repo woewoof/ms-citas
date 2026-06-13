@@ -111,7 +111,7 @@ public class CitaServiceImpl implements CitaService {
     @Transactional
     public CitaResponseDTO confirmarCita(Long id) {
         Cita cita = citaRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("No se encontró la cita que deseas cancelar"));
+                .orElseThrow(() -> new ResourceNotFoundException("No se encontró la cita que deseas confirmar"));
 
         if (cita.getEstado() == EstadoCita.CANCELADA || cita.getEstado() == EstadoCita.COMPLETADA) {
             throw new IllegalArgumentException("No se puede confirmar una cita cancelada o completada");
