@@ -125,4 +125,15 @@ public class CitaController {
         citaService.eliminarCita(id);
         return ResponseEntity.noContent().build();
     }
+
+    @Operation(summary = "Marcar que el paciente no asistió")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Cita marcada como no asiste"),
+            @ApiResponse(responseCode = "400", description = "Estado inválido"),
+            @ApiResponse(responseCode = "404", description = "Cita no encontrada")
+    })
+    @PatchMapping("/{id}/no-asiste")
+    public ResponseEntity<CitaResponseDTO> marcarNoAsiste(@PathVariable Long id) {
+        return ResponseEntity.ok(citaService.marcarNoAsiste(id));
+    }
 }

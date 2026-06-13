@@ -28,17 +28,14 @@ public class CitaServiceImpl implements CitaService {
         if (!request.getFecha().isAfter(LocalDate.now())) {
             throw new IllegalArgumentException("La fecha de la cita debe ser futura");
         }
-        if (citaRepository.existsByNombreMedicoAndFechaAndHora(
-                request.getNombreMedico(), request.getFecha(), request.getHora())) {
-            throw new IllegalArgumentException("Ese horario ya esta ocupado para este medico");
-        }
+        boolean horarioOcupado = citaRepository.existsByNombreMedicoAndFechaAndHora(
+                request.getNombreMedico(), request.getFecha(), request.getHora());
 
-        Cita cita = citaMapper.toEntity(request);
-        if (cita.getPacienteId() == null) {
-            cita.setEstado(EstadoCita.DISPONIBLE);
-        } else {
-            cita.setEstado(EstadoCita.PROGRAMADA);
+        if (horarioOcupado) {
+            throw new IllegalArgumentException("Ese horario ya esta ocupado ");
         }
+        Cita cita = citaMapper.toEntity(request);
+        cita.setEstado(EstadoCita.PROGRAMADA);
 
         return citaMapper.toResponseDTO(citaRepository.save(cita));
     }
@@ -95,32 +92,30 @@ public class CitaServiceImpl implements CitaService {
         Cita cita = citaRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("La cita que quieres actualizar no existe"));
 
-        boolean mismoMedico = cita.getNombreMedico().equals(request.getNombreMedico());
-        boolean mismaFecha = cita.getFecha().equals(request.getFecha());
-        boolean mismaHora = cita.getHora().equals(request.getHora());
+        boolean cambioMedico = !cita.getNombreMedico().equals(request.getNombreMedico());
+        boolean cambioFecha  = !cita.getFecha().equals(request.getFecha());
+        boolean cambioHora   = !cita.getHora().equals(request.getHora());
 
-        if (!(mismoMedico && mismaFecha && mismaHora)) {
-            if (citaRepository.existsByNombreMedicoAndFechaAndHora(
-                    request.getNombreMedico(), request.getFecha(), request.getHora())) {
-                throw new IllegalArgumentException("Ese horario ya esta ocupado para este medico");
+        if (cambioMedico || cambioFecha || cambioHora) {
+            boolean horarioOcupado = citaRepository.existsByNombreMedicoAndFechaAndHora(
+                    request.getNombreMedico(), request.getFecha(), request.getHora());
+            if (horarioOcupado) {
+                throw new IllegalArgumentException("Ese horario ya esta ocupado");
             }
         }
 
         citaMapper.updateEntityFromDTO(request, cita);
-        if (cita.getPacienteId() == null) {
-            cita.setEstado(EstadoCita.DISPONIBLE);
-        } else if (cita.getEstado() == EstadoCita.DISPONIBLE) {
-            cita.setEstado(EstadoCita.PROGRAMADA);
-        }
-
         return citaMapper.toResponseDTO(citaRepository.save(cita));
     }
-
     @Override
     @Transactional
     public CitaResponseDTO confirmarCita(Long id) {
         Cita cita = citaRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("No se puede confirmar una cita que no existe"));
+                .orElseThrow(() -> new ResourceNotFoundException("No se encontró la cita que deseas cancelar"));
+
+        if (cita.getEstado() == EstadoCita.CANCELADA || cita.getEstado() == EstadoCita.COMPLETADA) {
+            throw new IllegalArgumentException("No se puede confirmar una cita cancelada o completada");
+        }
 
         cita.setEstado(EstadoCita.CONFIRMADA);
         return citaMapper.toResponseDTO(citaRepository.save(cita));
@@ -132,8 +127,25 @@ public class CitaServiceImpl implements CitaService {
         Cita cita = citaRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No se puede cancelar una cita que no existe"));
 
-        cita.setPacienteId(null);
-        cita.setEstado(EstadoCita.DISPONIBLE);
+        if (cita.getEstado() == EstadoCita.COMPLETADA) {
+            throw new IllegalArgumentException("No se puede cancelar una cita completada");
+        }
+
+        cita.setEstado(EstadoCita.CANCELADA);
+        return citaMapper.toResponseDTO(citaRepository.save(cita));
+    }
+
+    @Override
+    @Transactional
+    public CitaResponseDTO marcarNoAsiste(Long id) {
+        Cita cita = citaRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("No se encontró la cita que deseas marcar " ));
+
+        if (cita.getEstado() == EstadoCita.CANCELADA || cita.getEstado() == EstadoCita.COMPLETADA) {
+            throw new IllegalArgumentException("No se puede marcar como no asiste una cita cancelada o completada");
+        }
+
+        cita.setEstado(EstadoCita.NO_ASISTE);
         return citaMapper.toResponseDTO(citaRepository.save(cita));
     }
 
