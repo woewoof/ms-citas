@@ -5,11 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
 public class MsCitasApplication {
-
-	public static void main(String[] args) {
-		SpringApplication.run(MsCitasApplication.class, args);
-        System.out.println("ola");
-	}
-
-
+    public static void main(String[] args) {
+        SpringApplication.run(MsCitasApplication.class, args);
+    }
 }
