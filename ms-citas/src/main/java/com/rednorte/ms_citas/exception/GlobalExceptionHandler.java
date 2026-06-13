@@ -14,6 +14,19 @@ import java.util.stream.Collectors;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<ErrorResponseDTO> handleNotFound(
+            ResourceNotFoundException ex, HttpServletRequest request) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                ErrorResponseDTO.builder()
+                        .status(HttpStatus.NOT_FOUND.value())
+                        .message(ex.getMessage())
+                        .timestamp(LocalDateTime.now())
+                        .path(request.getRequestURI())
+                        .build()
+        );
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponseDTO> handleValidation(
             MethodArgumentNotValidException ex, HttpServletRequest request) {

@@ -3,6 +3,7 @@ package com.rednorte.ms_citas.service;
 import com.rednorte.ms_citas.dto.CitaRequestDTO;
 import com.rednorte.ms_citas.dto.CitaResponseDTO;
 import com.rednorte.ms_citas.dto.EstadoCita;
+import com.rednorte.ms_citas.exception.ResourceNotFoundException;
 import com.rednorte.ms_citas.mapper.CitaMapper;
 import com.rednorte.ms_citas.model.Cita;
 import com.rednorte.ms_citas.repository.CitaRepository;
@@ -45,7 +46,7 @@ public class CitaServiceImpl implements CitaService {
     @Override
     public CitaResponseDTO obtenerPorId(Long id) {
         Cita cita = citaRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Cita no encontrada"));
+                .orElseThrow(() -> new ResourceNotFoundException("Cita no encontrada"));
         return citaMapper.toResponseDTO(cita);
     }
 
@@ -92,7 +93,7 @@ public class CitaServiceImpl implements CitaService {
         }
 
         Cita cita = citaRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("La cita que quieres actualizar no existe"));
+                .orElseThrow(() -> new ResourceNotFoundException("La cita que quieres actualizar no existe"));
 
         boolean mismoMedico = cita.getNombreMedico().equals(request.getNombreMedico());
         boolean mismaFecha = cita.getFecha().equals(request.getFecha());
@@ -119,7 +120,7 @@ public class CitaServiceImpl implements CitaService {
     @Transactional
     public CitaResponseDTO confirmarCita(Long id) {
         Cita cita = citaRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("No se puede confirmar una cita que no existe"));
+                .orElseThrow(() -> new ResourceNotFoundException("No se puede confirmar una cita que no existe"));
 
         cita.setEstado(EstadoCita.CONFIRMADA);
         return citaMapper.toResponseDTO(citaRepository.save(cita));
@@ -129,7 +130,7 @@ public class CitaServiceImpl implements CitaService {
     @Transactional
     public CitaResponseDTO cancelarCita(Long id) {
         Cita cita = citaRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("No se puede cancelar una cita que no existe"));
+                .orElseThrow(() -> new ResourceNotFoundException("No se puede cancelar una cita que no existe"));
 
         cita.setPacienteId(null);
         cita.setEstado(EstadoCita.DISPONIBLE);
@@ -140,7 +141,7 @@ public class CitaServiceImpl implements CitaService {
     @Transactional
     public void eliminarCita(Long id) {
         if (!citaRepository.existsById(id)) {
-            throw new IllegalArgumentException("No se puede eliminar una cita que no existe");
+            throw new ResourceNotFoundException("No se puede eliminar una cita que no existe");
         }
         citaRepository.deleteById(id);
     }
