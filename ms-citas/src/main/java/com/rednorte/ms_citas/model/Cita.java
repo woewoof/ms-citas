@@ -1,7 +1,12 @@
 package com.rednorte.ms_citas.model;
-import jakarta.persistence.*;
-import lombok.*;
+
 import com.rednorte.ms_citas.dto.EstadoCita;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -12,13 +17,11 @@ import java.time.LocalTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-
 public class Cita {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
-    @Column(nullable = false)
     private Long pacienteId;
 
     @Column(nullable = false)
@@ -46,13 +49,12 @@ public class Cita {
 
     private LocalDateTime fechaActualizacion;
 
-
     @PrePersist
     public void prePersist() {
         this.fechaCreacion = LocalDateTime.now();
         this.fechaActualizacion = LocalDateTime.now();
         if (this.estado == null) {
-            this.estado = EstadoCita.PROGRAMADA;
+            this.estado = EstadoCita.DISPONIBLE;
         }
     }
 
@@ -60,7 +62,4 @@ public class Cita {
     public void preUpdate() {
         this.fechaActualizacion = LocalDateTime.now();
     }
-
-
-
 }
