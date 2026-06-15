@@ -54,7 +54,7 @@ public class Cita {
         this.fechaCreacion = LocalDateTime.now();
         this.fechaActualizacion = LocalDateTime.now();
         if (this.estado == null) {
-            this.estado = EstadoCita.CONFIRMADA;
+            this.estado = EstadoCita.PROGRAMADA;
         }
     }
 
