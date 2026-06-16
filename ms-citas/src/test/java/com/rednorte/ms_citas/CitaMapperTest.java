@@ -29,4 +29,21 @@ class CitaMapperTest {
         assertEquals("Dr. García", cita.getNombreMedico());
         assertEquals("Cardiología", cita.getEspecialidad());
     }
+
+    @Test
+    void updateEntityFromDTO_debeActualizarLosCampos() {
+        Cita cita = new Cita();
+        CitaRequestDTO dto = CitaRequestDTO.builder()
+                .pacienteId(2L)
+                .fecha(LocalDate.now().plusDays(2))
+                .hora(LocalTime.of(14, 0))
+                .nombreMedico("Dr. Nuevo")
+                .especialidad("Pediatría")
+                .build();
+
+        mapper.updateEntityFromDTO(dto, cita);
+
+        assertEquals("Dr. Nuevo", cita.getNombreMedico());
+        assertEquals("Pediatría", cita.getEspecialidad());
+    }
 }
