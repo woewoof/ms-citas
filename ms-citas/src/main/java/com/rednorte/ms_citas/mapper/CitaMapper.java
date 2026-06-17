@@ -3,10 +3,6 @@ import com.rednorte.ms_citas.dto.CitaRequestDTO;
 import com.rednorte.ms_citas.dto.CitaResponseDTO;
 import com.rednorte.ms_citas.model.Cita;
 import org.springframework.stereotype.Component;
-
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-
 @Component
 public class CitaMapper {
     public Cita toEntity(CitaRequestDTO dto){
